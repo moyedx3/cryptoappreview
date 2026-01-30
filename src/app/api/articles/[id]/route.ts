@@ -4,15 +4,16 @@ import pool from '@/lib/db';
 // GET /api/articles/[id] - Get single article
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const result = await pool.query(
       `SELECT a.*, c.name as category_name, c.slug as category_slug
        FROM articles a
        LEFT JOIN categories c ON a.category_id = c.id
        WHERE a.id = $1`,
-      [params.id]
+      [id]
     );
 
     if (result.rows.length === 0) {
@@ -29,9 +30,10 @@ export async function GET(
 // PUT /api/articles/[id] - Update article
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title, subtitle, description, content, rating, category_id, image_url, is_featured, is_published } = body;
 
@@ -50,7 +52,7 @@ export async function PUT(
         updated_at = CURRENT_TIMESTAMP
        WHERE id = $10
        RETURNING *`,
-      [title, subtitle, description, content, rating, category_id, image_url, is_featured, is_published, params.id]
+      [title, subtitle, description, content, rating, category_id, image_url, is_featured, is_published, id]
     );
 
     if (result.rows.length === 0) {
@@ -67,10 +69,11 @@ export async function PUT(
 // DELETE /api/articles/[id] - Delete article
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const result = await pool.query('DELETE FROM articles WHERE id = $1 RETURNING *', [params.id]);
+    const { id } = await params;
+    const result = await pool.query('DELETE FROM articles WHERE id = $1 RETURNING *', [id]);
 
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
