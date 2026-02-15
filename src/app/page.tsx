@@ -30,6 +30,7 @@ const customStyles = {
 };
 
 const ReviewCard = ({
+  id,
   rating,
   category,
   title,
@@ -37,6 +38,7 @@ const ReviewCard = ({
   description,
   date,
 }: {
+  id: number;
   rating: number;
   category: string;
   title: string;
@@ -44,7 +46,7 @@ const ReviewCard = ({
   description: string;
   date: string;
 }) => (
-  <article className="bg-white border-4 border-black flex flex-col brutalist-shadow-hover transition-all duration-200">
+  <Link href={`/articles/${id}`} className="bg-white border-4 border-black flex flex-col brutalist-shadow-hover transition-all duration-200 hover:translate-y-[-4px] hover:translate-x-[-4px] hover:shadow-[12px_12px_0px_0px_#000]">
     <div className="aspect-square bg-gray-300 border-b-4 border-black relative">
       <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
         <svg className="w-16 h-16 text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
@@ -66,7 +68,7 @@ const ReviewCard = ({
         <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{date}</span>
       </div>
     </div>
-  </article>
+  </Link>
 );
 
 const LovedAppItem = ({
@@ -232,7 +234,7 @@ export default function HomePage() {
                   <h2 className="text-2xl font-black uppercase tracking-tighter" style={customStyles.heading}>Featured Review</h2>
                 </div>
 
-                <div className="bg-white border-4 border-black brutalist-shadow group cursor-pointer hover:translate-y-[-4px] hover:translate-x-[-4px] hover:shadow-[12px_12px_0px_0px_#000] transition-all duration-200">
+                <Link href={`/articles/${featuredArticle.id}`} className="block bg-white border-4 border-black brutalist-shadow group cursor-pointer hover:translate-y-[-4px] hover:translate-x-[-4px] hover:shadow-[12px_12px_0px_0px_#000] transition-all duration-200">
                   <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="aspect-square w-full h-full bg-gray-200 border-b-4 md:border-b-0 md:border-r-4 border-black relative flex items-center justify-center overflow-hidden">
                       <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
@@ -270,13 +272,13 @@ export default function HomePage() {
                             {featuredArticle.rating}/10
                           </span>
                         </div>
-                        <button className="bg-[#D1FAE5] border-2 border-black px-6 py-3 font-bold uppercase tracking-widest hover:bg-black hover:text-[#D1FAE5] transition-colors brutalist-shadow-sm">
+                        <span className="bg-[#D1FAE5] border-2 border-black px-6 py-3 font-bold uppercase tracking-widest group-hover:bg-black group-hover:text-[#D1FAE5] transition-colors brutalist-shadow-sm">
                           Read Review
-                        </button>
+                        </span>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </section>
             )}
 
@@ -291,6 +293,7 @@ export default function HomePage() {
                 {articles.map((review) => (
                   <ReviewCard
                     key={review.id}
+                    id={review.id}
                     rating={review.rating}
                     category={review.category_name}
                     title={review.title}
