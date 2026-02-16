@@ -37,6 +37,7 @@ const ReviewCard = ({
   subtitle,
   description,
   date,
+  image_url,
 }: {
   id: number;
   rating: number;
@@ -45,14 +46,19 @@ const ReviewCard = ({
   subtitle: string;
   description: string;
   date: string;
+  image_url?: string;
 }) => (
   <Link href={`/articles/${id}`} className="bg-white border-4 border-black flex flex-col brutalist-shadow-hover transition-all duration-200 hover:translate-y-[-4px] hover:translate-x-[-4px] hover:shadow-[12px_12px_0px_0px_#000]">
-    <div className="aspect-square bg-gray-300 border-b-4 border-black relative">
-      <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
-        <svg className="w-16 h-16 text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-        </svg>
-      </div>
+    <div className="aspect-square bg-gray-300 border-b-4 border-black relative overflow-hidden">
+      {image_url ? (
+        <img src={image_url} alt={title} className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
+          <svg className="w-16 h-16 text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+          </svg>
+        </div>
+      )}
       <div className="absolute top-2 right-2 bg-[#D1FAE5] border-2 border-black rounded-full w-12 h-12 flex items-center justify-center font-display text-xl shadow-[2px_2px_0px_0px_#000]">
         {rating}
       </div>
@@ -237,11 +243,15 @@ export default function HomePage() {
                 <Link href={`/articles/${featuredArticle.id}`} className="block bg-white border-4 border-black brutalist-shadow group cursor-pointer hover:translate-y-[-4px] hover:translate-x-[-4px] hover:shadow-[12px_12px_0px_0px_#000] transition-all duration-200">
                   <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="aspect-square w-full h-full bg-gray-200 border-b-4 md:border-b-0 md:border-r-4 border-black relative flex items-center justify-center overflow-hidden">
-                      <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
-                        <svg className="w-32 h-32 text-[#D1FAE5]" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-4h2v4zm0-6H11V8h2v2z" />
-                        </svg>
-                      </div>
+                      {featuredArticle.image_url ? (
+                        <img src={featuredArticle.image_url} alt={featuredArticle.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
+                          <svg className="w-32 h-32 text-[#D1FAE5]" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-4h2v4zm0-6H11V8h2v2z" />
+                          </svg>
+                        </div>
+                      )}
                       <div className="absolute top-4 left-4 bg-[#D1FAE5] border-2 border-black px-3 py-1 font-bold text-sm uppercase shadow-[4px_4px_0px_0px_#000]">
                         App of the Week
                       </div>
@@ -300,6 +310,7 @@ export default function HomePage() {
                     subtitle={review.subtitle}
                     description={review.description}
                     date={new Date(review.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    image_url={review.image_url}
                   />
                 ))}
               </div>
