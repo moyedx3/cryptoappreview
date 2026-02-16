@@ -23,7 +23,10 @@ const customStyles = {
 
 async function getArticle(id: string): Promise<Article | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/articles/${id}`, {
+    // Use absolute URL for server-side fetching
+    const baseUrl = 'https://cryptoappreview-production.up.railway.app';
+    
+    const res = await fetch(`${baseUrl}/api/articles/${id}`, {
       cache: 'no-store'
     });
     if (!res.ok) return null;
