@@ -127,7 +127,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               </p>
               <div 
                 className="whitespace-pre-wrap font-medium leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: article.content?.replace(/\[\!\[(.*?)\]\((.*?)\)\]/g, '<img alt="$1" src="$2" class="my-4 rounded border-2 border-black" />') || 'Full review content coming soon...' }}
+                dangerouslySetInnerHTML={{ __html: article.content
+                  ?.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" class="my-6 w-full rounded border-4 border-black shadow-[4px_4px_0px_0px_#000]" />')
+                  ?.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  || 'Full review content coming soon...' }}
               />
             </div>
           </div>
