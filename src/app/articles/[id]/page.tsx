@@ -1,8 +1,5 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 interface Article {
   id: number;
@@ -23,6 +20,20 @@ const customStyles = {
     letterSpacing: '0.05em',
   },
 };
+
+async function getArticle(id: string): Promise<Article | null> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/articles/${id}`, {
+      cache: 'no-store'
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.article || null;
+  } catch (error) {
+    console.error('Error fetching article:', error);
+    return null;
+  }
+}
 
 const Header = () => (
   <nav className="w-full bg-white border-b-4 border-black sticky top-0 z-50">
@@ -55,53 +66,12 @@ const Footer = () => (
   </footer>
 );
 
-export default function ArticlePage() {
-  const params = useParams();
-  const [article, setArticle] = useState<Article | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (params.id) {
-      fetch(`/api/articles/${params.id}`)
-        .then(res => res.json())
-        .then(data => {
-          setArticle(data.article);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error('Error fetching article:', err);
-          setLoading(false);
-        });
-    }
-  }, [params.id]);
-
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="font-display text-2xl">Loading...</div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const article = await getArticle(id);
 
   if (!article) {
-    return (
-      <>
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="font-display text-4xl uppercase mb-4">Article Not Found</h1>
-            <Link href="/" className="text-blue-600 hover:underline font-bold">
-              ← Back to homepage
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
+    notFound();
   }
 
   return (
@@ -112,11 +82,19 @@ export default function ArticlePage() {
           {/* Article Header */}
           <div className="bg-white border-4 border-black brutalist-shadow mb-8">
             <div className="aspect-video w-full bg-gray-200 border-b-4 border-black relative flex items-center justify-center overflow-hidden">
-              <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
-                <svg className="w-32 h-32 text-[#D1FAE5]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-4h2v4zm0-6H11V8h2v2z" />
-                </svg>
-              </div>
+              {article.image_url ? (
+                <img 
+                  src={article.image_url} 
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
+                  <svg className="w-32 h-32 text-[#D1FAE5]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-4h2v4zm0-6H11V8h2v2z" />
+                  </svg>
+                </div>
+              )}
               <div className="absolute top-4 right-4 bg-[#D1FAE5] border-4 border-black px-4 py-2 font-display text-3xl shadow-[4px_4px_0px_0px_#000]" style={customStyles.heading}>
                 {article.rating}/10
               </div>
@@ -144,9 +122,10 @@ export default function ArticlePage() {
               <p className="text-xl font-medium leading-relaxed mb-8 text-gray-700 italic border-l-4 border-black pl-6">
                 {article.description}
               </p>
-              <div className="whitespace-pre-wrap font-medium leading-relaxed">
-                {article.content || 'Full review content coming soon...'}
-              </div>
+              <div 
+                className="whitespace-pre-wrap font-medium leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: article.content?.replace(/\[\!\[(.*?)\]\((.*?)\)\]/g, '<img alt="$1" src="$2" class="my-4 rounded border-2 border-black" />') || 'Full review content coming soon...' }}
+              />
             </div>
           </div>
 
